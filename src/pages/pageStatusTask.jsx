@@ -41,26 +41,32 @@ const PageStatusTask = () => {
 
     const [taskCardToDelete, setTaskCardToDelete] = useState(null); // lưu ID task đang muốn xóa
     const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+
+    const [selectedTaskCard, setSelectedTaskCard] = useState(null);
+    const [taskDetail, setTaskDetail] = useState(null);
+    const [showTaskDetailModal, setShowTaskDetailModal] = useState(false);
+    const [detailDescription, setDetailDescription] = useState("");
+    const [selectedFile, setSelectedFile] = useState(null);
     // Lấy tất cả các status của project này
     const fetchStatuses = async () => {
         try {
-          const res = await axios.get(`https://api.qlcv.uonghoailuong.vn/api/statusTask/project/${ProjectID}`, {
-            headers: {
-              Authorization: `Bearer ${token}`
+            const res = await axios.get(`https://api.qlcv.uonghoailuong.vn/api/statusTask/project/${ProjectID}`, {
+                headers: {
+                Authorization: `Bearer ${token}`
+                }
+            });
+        
+            if (Array.isArray(res.data)) {
+                setStatuses(res.data);
+            } else if (res.data && Array.isArray(res.data.data)) {
+                setStatuses(res.data.data);
+            } else {
+                setStatuses([]);
+                console.error("API trả về dữ liệu không đúng định dạng:", res.data);
             }
-          });
-      
-          if (Array.isArray(res.data)) {
-            setStatuses(res.data);
-          } else if (res.data && Array.isArray(res.data.data)) {
-            setStatuses(res.data.data);
-          } else {
-            setStatuses([]);
-            console.error("API trả về dữ liệu không đúng định dạng:", res.data);
-          }
         } catch (error) {
-          console.error("Lỗi khi lấy danh sách status:", error);
-          setStatuses([]);
+            console.error("Lỗi khi lấy danh sách status:", error);
+            setStatuses([]);
         }
     };
       
@@ -230,8 +236,8 @@ const PageStatusTask = () => {
             await fetchStatuses();
       
         } catch (error) {
-          console.error("Lỗi khi tạo TaskCard:", error);
-          setToast({ message: "Tạo TaskCard thất bại!", type: "error" });
+            console.error("Lỗi khi tạo TaskCard:", error);
+            setToast({ message: "Tạo TaskCard thất bại!", type: "error" });
         }
     };
  
@@ -290,19 +296,19 @@ const PageStatusTask = () => {
 
     const deleteTaskCard = async (taskCardId) => {
         try {
-          await axios.delete(`https://api.qlcv.uonghoailuong.vn/api/taskCard/delete/${taskCardId}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-              "Accept": "application/json"
-            }
+            await axios.delete(`https://api.qlcv.uonghoailuong.vn/api/taskCard/delete/${taskCardId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                }
           });
       
-          setToast({ message: "Xóa TaskCard thành công!", type: "success" });
-          await fetchStatuses(); // cập nhật lại giao diện
+            setToast({ message: "Xóa TaskCard thành công!", type: "success" });
+            await fetchStatuses(); // cập nhật lại giao diện
         } catch (error) {
-          console.error("Lỗi khi xóa TaskCard:", error);
-          setToast({ message: "Xóa TaskCard thất bại!", type: "error" });
+            console.error("Lỗi khi xóa TaskCard:", error);
+            setToast({ message: "Xóa TaskCard thất bại!", type: "error" });
         }
     };
     
@@ -361,12 +367,19 @@ const PageStatusTask = () => {
                                                 ref={provided.innerRef}
                                                 {...provided.draggableProps}
                                                 {...provided.dragHandleProps}
-                                                className="p-2 bg-white rounded shadow mb-2 flex justify-between items-center"
-                                                >
+                                                className="p-2 bg-white rounded shadow mb-2 flex justify-between items-center cursor-pointer"
+                                                onClick={() => {
+                                                    const detail = task.task_card_details?.[0] || null;
+                                                    setSelectedTaskCard(task);
+                                                    setTaskDetail(detail);
+                                                    setShowTaskDetailModal(true);
+                                                }}
+                                            >
                                                 {task.TaskCardName}
                                                 <FaTimes
                                                 className="text-red-500 cursor-pointer hover:text-red-700"
-                                                onClick={() => {
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
                                                     setTaskCardToDelete(task.TaskCardID);
                                                     setShowConfirmDelete(true);
                                                 }}
@@ -575,6 +588,88 @@ const PageStatusTask = () => {
                 </div>
                 </div>
             </div>
+            )}
+            {showTaskDetailModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-md p-6 w-[90%] max-w-lg relative">
+                    <button
+                        className="absolute top-2 right-2 text-gray-700 hover:text-black"
+                        onClick={() => {
+                        setShowTaskDetailModal(false);
+                        setSelectedTaskCard(null);
+                        setTaskDetail(null);
+                        }}
+                    >
+                        <FaTimes size={20} />
+                    </button>
+
+                    <h2 className="text-xl font-bold mb-4">Chi tiết Task: {selectedTaskCard?.TaskCardName}</h2>
+
+                    {taskDetail ? (
+                        <>
+                        <p><strong>Mô tả:</strong> {taskDetail.Description}</p>
+                        {taskDetail.File && (
+                            <p><strong>File:</strong> <a href={taskDetail.File} className="text-blue-500 underline" target="_blank">Xem file</a></p>
+                        )}
+                        </>
+                    ) : (
+                        <form
+                        onSubmit={async (e) => {
+                            e.preventDefault();
+                            try {
+                                const employeeRes = await axios.get("https://api.qlcv.uonghoailuong.vn/api/user", {
+                                    headers: { Authorization: `Bearer ${token}` },
+                                  });
+                                  const employeeID = employeeRes.data.employee?.EmployeeID;
+                              
+                                  //  Tạo formData
+                                  const formData = new FormData();
+                                  formData.append("TaskCardID", selectedTaskCard.TaskCardID);
+                                  formData.append("EmployeeID", employeeID);
+                                  formData.append("Description", detailDescription);
+                                  if (selectedFile) {
+                                    formData.append("File", selectedFile);
+                                  }
+                              
+                                  //  Gửi formData
+                                  await axios.post("https://api.qlcv.uonghoailuong.vn/api/taskCardDetail/create", formData, {
+                                    headers: {
+                                      Authorization: `Bearer ${token}`,
+                                      "Content-Type": "multipart/form-data",
+                                    },
+                                  });
+                              
+                                  setToast({ message: "Tạo chi tiết thành công!", type: "success" });
+                                  setShowTaskDetailModal(false);
+                                  setDetailDescription("");
+                                  setSelectedFile(null);
+                            } catch (err) {
+                            console.error("Lỗi tạo mô tả:", err);
+                            setToast({ message: "Tạo thất bại!", type: "error" });
+                            }
+                        }}
+                        >
+                        <label className="block text-sm font-medium mb-2">Nhập mô tả:</label>
+                        <textarea
+                            rows={4}
+                            className="w-full border rounded p-2 mb-4"
+                            value={detailDescription}
+                            onChange={(e) => setDetailDescription(e.target.value)}
+                        />
+                        <input
+                            type="file"
+                            onChange={(e) => setSelectedFile(e.target.files[0])}
+                            className="block w-full mt-2 border rounded p-2"
+                        />
+                        <div className="flex justify-end">
+                            <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                            Tạo mô tả
+                            </button>
+                        </div>
+                        </form>
+                    )}
+                    </div>
+                </div>
             )}
         </>
     )

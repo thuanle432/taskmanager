@@ -39,31 +39,31 @@ const PageProject = () => {
     // Gọi API để lấy danh sách các dự án
     const fetchProjects = useCallback(async () => {
         try {
-          if (!token) {
-            console.error("Token không tồn tại!");
-            return;
-          }
-      
-          const employeeId = await getEmployeeId(); // ✅ lấy EmployeeID hiện tại
-      
-          const response = await axios.get("https://api.qlcv.uonghoailuong.vn/api/project/index", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-              "Accept": "application/json"
+            if (!token) {
+                console.error("Token không tồn tại!");
+                return;
             }
-          });
-      
-          const allProjects = response.data?.data || [];
-          const filteredProjects = allProjects.filter(
-            (project) => project.EmployeeID === employeeId
-          );
-      
-          setProjects({ data: filteredProjects });
+        
+            const employeeId = await getEmployeeId(); //  lấy EmployeeID hiện tại
+        
+            const response = await axios.get("https://api.qlcv.uonghoailuong.vn/api/project/index", {
+                headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+                }
+            });
+        
+            const allProjects = response.data?.data || [];
+            const filteredProjects = allProjects.filter(
+                (project) => project.EmployeeID === employeeId
+            );
+        
+            setProjects({ data: filteredProjects });
         } catch (error) {
-          console.error("Lỗi khi lấy danh sách dự án:", error);
+            console.error("Lỗi khi lấy danh sách dự án:", error);
         } finally {
-          setIsLoading(false);
+            setIsLoading(false);
         }
     }, [token, setProjects, setIsLoading]);
 
@@ -82,23 +82,23 @@ const PageProject = () => {
     //Hàm tạo dự án
     const getEmployeeId = async () => {
         try {
-          if (!token) {
-            console.error("Token không tồn tại!");
-            return null;
-          }
-      
-          const response = await axios.get("https://api.qlcv.uonghoailuong.vn/api/user", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-              "Accept": "application/json"
+            if (!token) {
+                console.error("Token không tồn tại!");
+                return null;
             }
-          });
-      
-          return response.data?.employee?.EmployeeID || null;
+        
+            const response = await axios.get("https://api.qlcv.uonghoailuong.vn/api/user", {
+                headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+                }
+            });
+        
+            return response.data?.employee?.EmployeeID || null;
         } catch (error) {
-          console.error("Lỗi khi lấy EmployeeID:", error);
-          return null;
+            console.error("Lỗi khi lấy EmployeeID:", error);
+            return null;
         }
     };
     
