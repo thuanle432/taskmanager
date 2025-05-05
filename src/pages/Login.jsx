@@ -8,24 +8,38 @@ const Login = () =>  {
         window.location.href = "https://api.qlcv.uonghoailuong.vn/redirect";
     }
      // Theo dõi thay đổi URL và kiểm tra nếu có token trong query string
-    useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get("token");// Giả sử token được trả về trong query string
-
-        if(token) {
-            // Lưu token vào localStorage
-            localStorage.setItem("authToken", token);
-            // Xóa token khỏi URL
-            window.history.replaceState({}, document.title, window.location.pathname);
-            // Sau khi đăng nhập thành công, chuyển hướng đến trang PageHome
-            navigate("/pagehome");
-        }
-        else {
-            const storedToken = localStorage.getItem("authToken");
-            if (storedToken) {
-                navigate("/pageHome");
+     useEffect(() => {
+        const checkLogin = async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get("token");
+    
+            if (token) {
+                localStorage.setItem("authToken", token);
+                window.history.replaceState({}, document.title, window.location.pathname);
             }
-        }
+    
+            const storedToken = token || localStorage.getItem("authToken");
+    
+            if (storedToken) {
+                try {
+                    // Gọi API xác thực token
+                    const res = await fetch("https://api.qlcv.uonghoailuong.vn/api/user", {
+                        headers: {
+                            Authorization: `Bearer ${storedToken}`
+                        }
+                    });
+    
+                    if (!res.ok) throw new Error("Token không hợp lệ");
+    
+                    navigate("/pageHome");
+                } catch (err) {
+                    console.error("Token không hợp lệ:", err);
+                    localStorage.removeItem("authToken");
+                }
+            }
+        };
+    
+        checkLogin();
     }, [navigate]);
     
     
