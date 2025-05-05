@@ -55,7 +55,7 @@ const Header = () => {
         <>
             {account ? (
             <header className="flex">
-                <div className={`bg-gray-50 h-screen p-4 transition-all relative ${isSidebarOpen ? "w-64" : "w-26"}`}>
+                <div className={`bg-gradient-to-b from-blue-100 to-white text-slate-800 h-screen p-4 transition-all relative shadow-md ${isSidebarOpen ? "w-64" : "w-20"}`}>
                     <div className="flex items-center space-x-4 p-1 gray-100 shadow-md transition-all hover:scale-105 duration-300 ease-in-out">
                         <img className="w-12 h-12 rounded-full object-cover border-2 border-gray-300" 
                             src={account.avatar} 
@@ -85,7 +85,7 @@ const Header = () => {
                             </span>
                         </div>
                     </div>
-                    <button onClick={toggleSidebar} className="absolute -right-3 text-3xl py-10 hover:scale-105 duration-300 ease-in-out">
+                    <button onClick={toggleSidebar} className="absolute -right-3 text-3xl py-10 hover:scale-105 duration-300 ease-in-out z-30">
                         {isSidebarOpen ? <FaArrowAltCircleLeft /> : <FaArrowAltCircleRight />}
                     </button>
                 </div>

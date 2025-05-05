@@ -326,7 +326,9 @@ const PageProject = () => {
                                 <div 
                                     key={project.ProjectID} 
                                     className="bg-gray-100 rounded-md shadow-md hover:bg-gray-200 transition-all"
-                                    onClick={() => handleProjectClick(project.ProjectID)}
+                                    onClick={() => navigate(`/project/${project.ProjectID}`, {
+                                        state: { background: project.Background }
+                                    })}
                                 >
                                     <div className="relative">
                                         <img

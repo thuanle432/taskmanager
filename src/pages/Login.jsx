@@ -5,7 +5,7 @@ const Login = () =>  {
     const navigate = useNavigate();
     const handleClick = () => {
         // Chuyển hướng người dùng tới API để thực hiện đăng nhập
-        window.location.href = "https://api.qlcv.uonghoailuong.vn/api/redirect";
+        window.location.href = "https://api.qlcv.uonghoailuong.vn/redirect";
     }
      // Theo dõi thay đổi URL và kiểm tra nếu có token trong query string
     useEffect(() => {
@@ -27,6 +27,7 @@ const Login = () =>  {
             }
         }
     }, [navigate]);
+    
     
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
