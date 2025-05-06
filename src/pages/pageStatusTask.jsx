@@ -684,19 +684,19 @@ const PageStatusTask = () => {
                     />
 
                     <div className="flex justify-end gap-2">
-                    <button
-                        type="button"
-                        className="bg-gray-300 px-4 py-2 rounded"
-                        onClick={() => setShowTaskDetailModal(false)}
-                    >
-                        Hủy
-                    </button>
-                    <button
-                        type="submit"
-                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                    >
-                        {taskDetail ? "Cập nhật" : "Thêm"}
-                    </button>
+                        <button
+                            type="button"
+                            className="bg-gray-300 px-4 py-2 rounded"
+                            onClick={() => setShowTaskDetailModal(false)}
+                        >
+                            Hủy
+                        </button>
+                        <button
+                            type="submit"
+                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                        >
+                            {taskDetail ? "Cập nhật" : "Thêm"}
+                        </button>
                     </div>
                 </form>
                 </div>

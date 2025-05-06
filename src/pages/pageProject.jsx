@@ -17,6 +17,9 @@ const PageProject = () => {
     //State cho form tạo dự án
     const [projectName, setProjectName] = useState("");
     const [projectImage, setProjectImage] = useState("");
+
+
+    const [inviteMail, setInviteMail] = useState("");
     
     // Ẩn và hiển thị form tạo dự án
     const handleButtonClick = () => {
@@ -32,6 +35,11 @@ const PageProject = () => {
     // Hiển thị xác nhận khi muốn xóa dự án
     const [showConfirm, setShowConfirm] = useState(false);
     const [selectedProject, setSelectedProject] = useState(null);
+
+    // Hiển thị xác nhận mời mail
+    const [isInviteFormVisible, setInviteFormVisible] = useState(false);
+    const [inviteEmail, setInviteEmail] = useState("");
+    const [selectedProjectForInvite, setSelectedProjectForInvite] = useState(null);
 
     // Khai báo hook useNavigate
     const navigate = useNavigate();
@@ -175,6 +183,7 @@ const PageProject = () => {
         setShowConfirm(false);
         setSelectedProject(null);
     };
+
 
     // Hàm sửa dự án
     const updateProject = async (ProjectID, updatedData) => {
@@ -340,7 +349,14 @@ const PageProject = () => {
                                             <span className="text-white font-bold text-xl">{project.ProjectName}</span>
                                         </div>
                                         <div className="absolute bottom-4 left-4 flex items-center space-x-2">
-                                            <FaUser className="text-white text-xl" />
+                                        <FaUser
+                                            className="text-white text-xl cursor-pointer"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedProjectForInvite(project.ProjectID);
+                                                setInviteFormVisible(true);
+                                            }}
+                                        />
                                         </div>
                                         <div className="absolute bottom-4 right-4 flex items-center space-x-2">
                                             <FaTrash 
@@ -396,6 +412,67 @@ const PageProject = () => {
                     </div>
                 </div>
             )}
+
+            {isInviteFormVisible && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="relative w-2/4 p-6 bg-white rounded-md shadow-md">
+                    <button
+                        className="absolute top-2 left-2 text-gray-700 hover:text-gray-900"
+                        onClick={() => {
+                        setInviteFormVisible(false);
+                        setInviteEmail("");
+                        setSelectedProjectForInvite(null);
+                        }}
+                    >
+                        <FaTimes size={24} />
+                    </button>
+
+                    <form
+                        className="p-6"
+                        onSubmit={async (e) => {
+                        e.preventDefault();
+                        try {
+                            await axios.post(
+                            `https://api.qlcv.uonghoailuong.vn/api/project/${selectedProjectForInvite}/invite`,
+                            { Email: inviteEmail },
+                            {
+                                headers: {
+                                Authorization: `Bearer ${token}`,
+                                "Content-Type": "application/json",
+                                },
+                            }
+                            );
+                            setToast({ message: "Đã gửi lời mời thành công!", type: "success" });
+                            setInviteFormVisible(false);
+                            setInviteEmail("");
+                            setSelectedProjectForInvite(null);
+                        } catch (error) {
+                            console.error("Lỗi mời người dùng:", error);
+                            setToast({ message: "Lỗi gửi lời mời!", type: "error" });
+                        }
+                        }}
+                    >
+                        <h2 className="text-xl font-bold mb-4">Mời người tham gia dự án</h2>
+                        <input
+                        className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none mb-4"
+                        type="email"
+                        placeholder="Nhập email người được mời"
+                        value={inviteEmail}
+                        onChange={(e) => setInviteEmail(e.target.value)}
+                        required
+                        />
+                        <div className="flex justify-end">
+                        <button
+                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                            type="submit"
+                        >
+                            Gửi lời mời
+                        </button>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+                )}
             {isEditFormVisible && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                 <div className="relative w-2/4 p-6 bg-white rounded-md shadow-md">
