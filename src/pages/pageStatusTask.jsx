@@ -51,6 +51,7 @@ const PageStatusTask = () => {
     const [detailDescription, setDetailDescription] = useState("");
     const [selectedFile, setSelectedFile] = useState(null);
     
+    
     // Lấy tất cả các status của project này
     const fetchStatuses = async () => {
         try {
@@ -377,7 +378,7 @@ const PageStatusTask = () => {
                                                     {...provided.dragHandleProps}
                                                     className="p-2 bg-white rounded shadow mb-2 flex justify-between items-center cursor-pointer"
                                                     onClick={() => {
-                                                        const detail = task.task_card_details?.[0] || null;
+                                                        const detail = task.task_card_detail || null;
                                                         setSelectedTaskCard(task);
                                                         setTaskDetail(detail);
                                                         setDetailDescription(detail?.Description || "");
@@ -682,6 +683,23 @@ const PageStatusTask = () => {
                         className="w-full border rounded p-2 mb-4"
                         onChange={(e) => setSelectedFile(e.target.files[0])}
                     />
+
+                    {taskDetail?.Description && (
+                        <p className="mb-4">
+                            <strong>Mô tả công việc:</strong> {taskDetail.Description}
+                        </p>
+                    )}
+                    {taskDetail?.File && (
+                        
+                        <a
+                            href={taskDetail.File}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-500 underline mb-4 block"
+                        >
+                            Xem tệp đính kèm
+                        </a>
+                    )}
 
                     <div className="flex justify-end gap-2">
                         <button

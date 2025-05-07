@@ -19,7 +19,6 @@ const PageProject = () => {
     const [projectImage, setProjectImage] = useState("");
 
 
-    const [inviteMail, setInviteMail] = useState("");
     
     // Ẩn và hiển thị form tạo dự án
     const handleButtonClick = () => {
@@ -44,6 +43,7 @@ const PageProject = () => {
     // Khai báo hook useNavigate
     const navigate = useNavigate();
 
+
     // Gọi API để lấy danh sách các dự án
     const fetchProjects = useCallback(async () => {
         try {
@@ -63,11 +63,8 @@ const PageProject = () => {
             });
         
             const allProjects = response.data?.data || [];
-            const filteredProjects = allProjects.filter(
-                (project) => project.EmployeeID === employeeId
-            );
-        
-            setProjects({ data: filteredProjects });
+           
+            setProjects({ data: allProjects });
         } catch (error) {
             console.error("Lỗi khi lấy danh sách dự án:", error);
         } finally {
@@ -357,6 +354,16 @@ const PageProject = () => {
                                                 setInviteFormVisible(true);
                                             }}
                                         />
+                                        {project.members && project.members.length > 0 && (
+                                        <div className="absolute w-8 left-7 flex">
+                                            <img
+                                            src={project.members[0].user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(project.members[0].user?.fullname || 'Người dùng')}`}
+                                            alt={project.members[0].user?.fullname}
+                                            title={project.members[0].user?.fullname}
+                                            className="w-8 h-8 rounded-full object-cover border-2 border-white shadow hover:ring-2 hover:ring-blue-400"
+                                            />
+                                        </div>
+                                        )}
                                         </div>
                                         <div className="absolute bottom-4 right-4 flex items-center space-x-2">
                                             <FaTrash 
@@ -434,7 +441,7 @@ const PageProject = () => {
                         try {
                             await axios.post(
                             `https://api.qlcv.uonghoailuong.vn/api/project/${selectedProjectForInvite}/invite`,
-                            { Email: inviteEmail },
+                            { email: inviteEmail },
                             {
                                 headers: {
                                 Authorization: `Bearer ${token}`,
@@ -446,6 +453,7 @@ const PageProject = () => {
                             setInviteFormVisible(false);
                             setInviteEmail("");
                             setSelectedProjectForInvite(null);
+                            await fetchProjects();
                         } catch (error) {
                             console.error("Lỗi mời người dùng:", error);
                             setToast({ message: "Lỗi gửi lời mời!", type: "error" });
